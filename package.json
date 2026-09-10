@@ -1,0 +1,11 @@
+{
+  "name": "@dumking/lanchat-official-plugins",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["plugins/*", "packages/*"],
+  "scripts": {
+    "check:layout": "node scripts/check-layout.mjs",
+    "test": "npm run check:layout"
+  },
+  "engines": { "node": ">=20" }
+}

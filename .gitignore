@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+*.lcp
+*.sha256
+*.sig
+.env*
+!.env.example
