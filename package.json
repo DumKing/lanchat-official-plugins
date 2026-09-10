@@ -5,7 +5,12 @@
   "workspaces": ["plugins/*", "packages/*"],
   "scripts": {
     "check:layout": "node scripts/check-layout.mjs",
-    "test": "npm run check:layout"
+    "test:package": "node scripts/test-package.mjs",
+    "test": "npm run check:layout && npm run test:package",
+    "plugin:package": "node scripts/package-plugin.mjs"
   },
-  "engines": { "node": ">=20" }
+  "engines": { "node": ">=20" },
+  "devDependencies": {
+    "adm-zip": "^0.5.16"
+  }
 }
