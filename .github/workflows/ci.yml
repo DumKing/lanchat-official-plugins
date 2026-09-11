@@ -2,8 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, codex/plugin-platform-v080]
   pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   layout:
@@ -16,3 +19,34 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+
+  gomoku-package:
+    runs-on: ubuntu-latest
+    needs: layout
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build --workspace @dumking/lanchat-plugin-gomoku
+      - name: Build development package
+        if: github.event_name == 'pull_request' || github.ref != 'refs/heads/main'
+        run: npm run plugin:package -- plugins/com.lanchat.gomoku artifacts --development
+      - name: Build signed release package
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          LANCHAT_PLUGIN_KEY_ID: ${{ secrets.LANCHAT_PLUGIN_KEY_ID }}
+          LANCHAT_PLUGIN_PRIVATE_KEY: ${{ secrets.LANCHAT_PLUGIN_PRIVATE_KEY }}
+        run: npm run plugin:package -- plugins/com.lanchat.gomoku artifacts
+      - name: Write checksum
+        shell: bash
+        run: sha256sum artifacts/*.lcp > artifacts/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: com.lanchat.gomoku-${{ github.sha }}
+          path: |
+            artifacts/*.lcp
+            artifacts/SHA256SUMS.txt
+          if-no-files-found: error

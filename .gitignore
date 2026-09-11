@@ -6,3 +6,5 @@ coverage/
 *.sig
 .env*
 !.env.example
+.local-keys/
+.tmp/
