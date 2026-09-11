@@ -1,0 +1,10 @@
+{
+  "name": "@dumking/lanchat-plugin-gomoku",
+  "private": true,
+  "version": "0.8.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/gomoku-rules.test.mjs tests/gomoku-session.test.mjs",
+    "build": "node scripts/build.mjs"
+  }
+}
