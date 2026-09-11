@@ -8,6 +8,7 @@ const expected = new Set([
   "com.lanchat.xiangqi",
   "com.lanchat.minesweeper",
   "com.lanchat.monopoly",
+  "com.lanchat.doudizhu",
 ]);
 
 for (const pluginId of expected) {

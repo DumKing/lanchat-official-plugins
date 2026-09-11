@@ -1,0 +1,17 @@
+{
+  "manifestVersion": 1,
+  "id": "com.lanchat.xiangqi",
+  "name": "中国象棋",
+  "version": "0.8.0",
+  "apiVersion": "1.0",
+  "minHostVersion": "0.8.0",
+  "type": "web",
+  "entry": "dist/index.html",
+  "icon": "assets/icon.svg",
+  "singleton": true,
+  "capabilities": ["rooms.read", "rooms.write", "leaderboard.read", "leaderboard.write", "theme.read", "ui.notify", "logger.write"],
+  "contributes": {
+    "navigation": [{ "id": "xiangqi", "title": "中国象棋", "icon": "assets/icon.svg", "order": 220 }],
+    "games": [{ "id": "xiangqi", "minPlayers": 2, "maxPlayers": 2, "ranking": { "type": "win-loss", "minHumanPlayers": 2 } }]
+  }
+}

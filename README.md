@@ -8,6 +8,7 @@
 - `com.lanchat.xiangqi`：象棋
 - `com.lanchat.minesweeper`：扫雷
 - `com.lanchat.monopoly`：大富翁（平面与 3D 作为同一插件内的视图）
+- `com.lanchat.doudizhu`：斗地主，三人叫地主与牌局同步
 
 每个插件独立构建、测试、打包和发布。功能迁移完成后，主程序中的旧入口和旧实现会在同一批次删除。
 

@@ -1,0 +1,2 @@
+import { cp, mkdir, rm } from "node:fs/promises"; import { dirname, join } from "node:path"; import { fileURLToPath } from "node:url";
+const root = join(dirname(fileURLToPath(import.meta.url)), ".."), dist = join(root, "dist"); await rm(dist, { recursive: true, force: true }); await mkdir(dist, { recursive: true }); await cp(join(root, "public", "index.html"), join(dist, "index.html")); for (const file of ["main.js", "doudizhu.js", "session.js", "styles.css"]) await cp(join(root, "src", file), join(dist, file)); console.log(`斗地主插件已构建: ${dist}`);

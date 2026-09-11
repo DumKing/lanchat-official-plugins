@@ -1,0 +1,17 @@
+{
+  "manifestVersion": 1,
+  "id": "com.lanchat.minesweeper",
+  "name": "扫雷竞速",
+  "version": "0.8.0",
+  "apiVersion": "1.0",
+  "minHostVersion": "0.8.0",
+  "type": "web",
+  "entry": "dist/index.html",
+  "icon": "assets/icon.svg",
+  "singleton": true,
+  "capabilities": ["rooms.read", "rooms.write", "leaderboard.read", "leaderboard.write", "storage.private", "theme.read", "ui.notify", "logger.write"],
+  "contributes": {
+    "navigation": [{ "id": "minesweeper", "title": "扫雷竞速", "icon": "assets/icon.svg", "order": 230 }],
+    "games": [{ "id": "minesweeper", "minPlayers": 1, "maxPlayers": 6, "ranking": { "type": "time", "minHumanPlayers": 1 } }]
+  }
+}

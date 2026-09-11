@@ -1,0 +1,6 @@
+import test from "node:test"; import assert from "node:assert/strict";
+import { boardFromMines, chord, progress, reveal, toggleFlag } from "../src/minesweeper.js";
+import { applyEvent, createSession } from "../src/session.js";
+test("翻开空白区域、标记和踩雷", () => { const board = boardFromMines(4, 4, [{ x: 3, y: 3 }]); const opened = reveal(board, { x: 0, y: 0 }); assert.equal(opened.won, true); const flagged = toggleFlag(board, { x: 3, y: 3 }); assert.equal(flagged.board[3][3].flagged, true); const lost = reveal(board, { x: 3, y: 3 }); assert.equal(lost.lost, true); assert.equal(progress(opened.board).revealedSafe, 15); });
+test("九宫格展开要求周围旗帜数相同", () => { let board = boardFromMines(4, 4, [{ x: 0, y: 0 }]); board = reveal(board, { x: 1, y: 1 }).board; assert.equal(chord(board, { x: 1, y: 1 }).changed, false); board = toggleFlag(board, { x: 0, y: 0 }).board; assert.equal(chord(board, { x: 1, y: 1 }).changed, true); });
+test("房间使用统一种子并记录胜者", () => { let state = createSession("r", "a", ["a"], { width: 4, height: 4, mines: 1, seed: 1 }); state = applyEvent(state, { roomId: "r", gameId: "minesweeper", senderPeerId: "a", type: "minesweeper.start", payload: { width: 4, height: 4, mines: 1, seed: 2 }, timestamp: 10, idempotencyKey: "start" }); assert.equal(state.phase, "playing"); assert.equal(state.players.a.board.flat().filter((cell) => cell.mine).length, 1); });

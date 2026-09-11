@@ -1,0 +1,17 @@
+{
+  "manifestVersion": 1,
+  "id": "com.lanchat.monopoly",
+  "name": "大富翁",
+  "version": "0.8.0",
+  "apiVersion": "1.0",
+  "minHostVersion": "0.8.0",
+  "type": "web",
+  "entry": "dist/index.html",
+  "icon": "assets/icon.svg",
+  "singleton": true,
+  "capabilities": ["rooms.read", "rooms.write", "leaderboard.read", "leaderboard.write", "storage.private", "theme.read", "ui.notify", "logger.write"],
+  "contributes": {
+    "navigation": [{ "id": "monopoly", "title": "大富翁", "icon": "assets/icon.svg", "order": 250 }],
+    "games": [{ "id": "monopoly", "minPlayers": 2, "maxPlayers": 4, "ranking": { "type": "win-loss", "minHumanPlayers": 2 } }]
+  }
+}

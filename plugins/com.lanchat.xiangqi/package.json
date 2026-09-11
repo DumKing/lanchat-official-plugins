@@ -1,0 +1,7 @@
+{
+  "name": "@dumking/lanchat-plugin-xiangqi",
+  "private": true,
+  "version": "0.8.0",
+  "type": "module",
+  "scripts": { "test": "node --test tests/xiangqi.test.mjs", "build": "node scripts/build.mjs" }
+}

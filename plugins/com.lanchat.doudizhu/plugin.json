@@ -1,0 +1,17 @@
+{
+  "manifestVersion": 1,
+  "id": "com.lanchat.doudizhu",
+  "name": "斗地主",
+  "version": "0.8.0",
+  "apiVersion": "1.0",
+  "minHostVersion": "0.8.0",
+  "type": "web",
+  "entry": "dist/index.html",
+  "icon": "assets/icon.svg",
+  "singleton": true,
+  "capabilities": ["rooms.read", "rooms.write", "leaderboard.read", "leaderboard.write", "theme.read", "ui.notify", "logger.write"],
+  "contributes": {
+    "navigation": [{ "id": "doudizhu", "title": "斗地主", "icon": "assets/icon.svg", "order": 240 }],
+    "games": [{ "id": "doudizhu", "minPlayers": 3, "maxPlayers": 3, "ranking": { "type": "win-loss", "minHumanPlayers": 2 } }]
+  }
+}

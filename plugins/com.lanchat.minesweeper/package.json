@@ -1,0 +1,7 @@
+{
+  "name": "@dumking/lanchat-plugin-minesweeper",
+  "private": true,
+  "version": "0.8.0",
+  "type": "module",
+  "scripts": { "test": "node --test tests/minesweeper.test.mjs", "build": "node scripts/build.mjs" }
+}
