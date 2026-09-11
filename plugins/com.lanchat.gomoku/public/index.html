@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>五子棋</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="room-panel">
+        <header><div><small>官方插件</small><h1>五子棋</h1></div><button id="refreshRooms" class="ghost">刷新</button></header>
+        <div class="create-row"><input id="roomName" maxlength="24" value="五子棋对局" /><button id="createRoom">创建</button></div>
+        <div id="roomList" class="room-list"><p class="empty">正在读取房间…</p></div>
+      </aside>
+      <section class="game-panel">
+        <header class="game-header"><div><small id="roomMeta">尚未进入房间</small><h2 id="statusText">选择或创建一个房间</h2></div><span id="connectionState" class="badge">插件 API</span></header>
+        <div id="board" class="board" aria-label="五子棋棋盘"></div>
+        <footer class="game-actions">
+          <button id="readyButton">准备</button>
+          <button id="startButton">开始</button>
+          <button id="resignButton" class="danger">认输</button>
+          <button id="restartButton">再来一局</button>
+          <button id="leaveButton" class="ghost">离开房间</button>
+        </footer>
+      </section>
+    </main>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

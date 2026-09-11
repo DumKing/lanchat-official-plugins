@@ -1,0 +1,29 @@
+{
+  "manifestVersion": 1,
+  "id": "com.lanchat.gomoku",
+  "name": "五子棋",
+  "version": "0.8.0",
+  "apiVersion": "1.0",
+  "minHostVersion": "0.8.0",
+  "type": "web",
+  "entry": "dist/index.html",
+  "icon": "assets/icon.svg",
+  "singleton": true,
+  "capabilities": [
+    "rooms.read",
+    "rooms.write",
+    "leaderboard.read",
+    "leaderboard.write",
+    "theme.read",
+    "ui.notify",
+    "logger.write"
+  ],
+  "contributes": {
+    "navigation": [
+      { "id": "gomoku", "title": "五子棋", "icon": "assets/icon.svg", "order": 210 }
+    ],
+    "games": [
+      { "id": "gomoku", "minPlayers": 2, "maxPlayers": 2, "ranking": { "type": "win-loss", "minHumanPlayers": 2 } }
+    ]
+  }
+}
