@@ -35,15 +35,18 @@ function runGit(repoRoot, args) {
   return { ok: result.status === 0, stdout: result.stdout.trim(), stderr: result.stderr.trim() };
 }
 
-function locateMainRepository() {
-  const candidates = [
+function mainRepositoryCandidates() {
+  return [
     process.env.LANCHAT_MAIN_REPO,
+    OFFICIAL_REPO_ROOT,
     "D:\\lanchat\\lanchat",
     path.resolve(OFFICIAL_REPO_ROOT, "../lanchat"),
     path.resolve(OFFICIAL_REPO_ROOT, "../.."),
   ].filter(Boolean);
+}
 
-  for (const candidate of [...new Set(candidates)]) {
+function locateMainRepository() {
+  for (const candidate of [...new Set(mainRepositoryCandidates())]) {
     if (Object.keys(BASELINES).every((revision) => runGit(candidate, ["rev-parse", "--verify", `${revision}^{commit}`]).ok)) {
       return candidate;
     }
@@ -52,6 +55,10 @@ function locateMainRepository() {
 }
 
 const MAIN_REPO_ROOT = locateMainRepository();
+
+test("主仓库定位候选包含当前官方仓库根目录", () => {
+  assert.ok(mainRepositoryCandidates().includes(OFFICIAL_REPO_ROOT));
+});
 
 test("迁移来源清单覆盖设计要求的旧模板、组件、规则、样式、测试和资源", () => {
   const kinds = new Set(Object.values(BASELINES).flat().map(({ kind }) => kind));
