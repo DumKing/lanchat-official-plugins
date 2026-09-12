@@ -3,5 +3,9 @@
   "private": true,
   "version": "0.8.0",
   "type": "module",
-  "scripts": { "test": "node --test tests/monopoly.test.mjs", "build": "node scripts/build.mjs" }
+  "scripts": {
+    "test": "node --test tests/monopoly.test.mjs && npm run test:migration",
+    "test:migration": "node --test tests/migration/source-inventory.test.mjs tests/migration/behavior-matrix.test.mjs",
+    "build": "node scripts/build.mjs"
+  }
 }
