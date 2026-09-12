@@ -1,14 +1,34 @@
-import assert from "node:assert/strict";
-import test from "node:test";
-import { MIGRATION_MATRIX } from "./migration-manifest.mjs";
+export const BASELINE_COMMITS = Object.freeze({
+  visual: "e43ef51b101f85a3e9f6f8b150c621698d6d5754",
+  behavior: "d932c7be9131f3c6e9683f966314f4139b1692a9",
+});
 
-const VISUAL_BASELINE = "e43ef51b101f85a3e9f6f8b150c621698d6d5754";
-const BEHAVIOR_BASELINE = "d932c7be9131f3c6e9683f966314f4139b1692a9";
 const source = (commit, path) => `${commit}:${path}`;
-const visual = (path) => source(VISUAL_BASELINE, path);
-const behavior = (path) => source(BEHAVIOR_BASELINE, path);
+const visual = (path) => source(BASELINE_COMMITS.visual, path);
+const behavior = (path) => source(BASELINE_COMMITS.behavior, path);
 
-const EXPECTED_MIGRATION_MATRIX = [
+export const SOURCE_INVENTORY = Object.freeze([
+  { commit: BASELINE_COMMITS.visual, kind: "template", path: "src/App.vue" },
+  { commit: BASELINE_COMMITS.visual, kind: "style", path: "src/styles/monopoly3d-room.css" },
+  { commit: BASELINE_COMMITS.behavior, kind: "template", path: "src/App.vue" },
+  { commit: BASELINE_COMMITS.behavior, kind: "component", path: "src/components/MonopolyBoard3D.vue" },
+  { commit: BASELINE_COMMITS.behavior, kind: "component", path: "src/components/MonopolyRoomChat.vue" },
+  { commit: BASELINE_COMMITS.behavior, kind: "rule", path: "src/games/monopoly.ts" },
+  { commit: BASELINE_COMMITS.behavior, kind: "rule", path: "src/games/monopolyRoom.ts" },
+  { commit: BASELINE_COMMITS.behavior, kind: "test", path: "scripts/test-monopoly-room.mjs" },
+  { commit: BASELINE_COMMITS.behavior, kind: "test", path: "scripts/test-monopoly-rules.mjs" },
+  { commit: BASELINE_COMMITS.behavior, kind: "test", path: "scripts/test-monopoly-ui.mjs" },
+  { commit: BASELINE_COMMITS.behavior, kind: "asset", path: "public/games/monopoly/avatars/player-characters.png" },
+  { commit: BASELINE_COMMITS.behavior, kind: "asset", path: "public/games/monopoly/avatars/player-portraits.png" },
+  { commit: BASELINE_COMMITS.behavior, kind: "asset", path: "public/games/monopoly/buildings/style-1.png" },
+  { commit: BASELINE_COMMITS.behavior, kind: "asset", path: "public/games/monopoly/buildings/style-2.png" },
+  { commit: BASELINE_COMMITS.behavior, kind: "asset", path: "public/games/monopoly/buildings/style-3.png" },
+  { commit: BASELINE_COMMITS.behavior, kind: "asset", path: "public/games/monopoly/corners/corner-landmarks.png" },
+  { commit: BASELINE_COMMITS.behavior, kind: "asset", path: "public/games/monopoly/events/slot-machine.png" },
+  { commit: BASELINE_COMMITS.behavior, kind: "asset", path: "public/games/monopoly/items/board-items.png" },
+]);
+
+export const MIGRATION_MATRIX = Object.freeze([
   {
     item: "room/create",
     sourceFiles: [visual("src/App.vue"), behavior("src/games/monopolyRoom.ts")],
@@ -111,35 +131,4 @@ const EXPECTED_MIGRATION_MATRIX = [
     targetFiles: ["src/host/room-adapter.ts", "src/domain/state-hash.ts"],
     verificationTests: ["tests/host/room-adapter.test.ts", "tests/domain/determinism.test.ts"],
   },
-];
-
-function assertMatchesDesign(matrix) {
-  assert.deepEqual(matrix, EXPECTED_MIGRATION_MATRIX);
-}
-
-test("共享迁移 manifest 与设计规定的完整映射一致", () => {
-  assertMatchesDesign(MIGRATION_MATRIX);
-});
-
-test("独立设计期望能捕获关键第二来源、目标路径和测试路径被篡改", () => {
-  const withoutSecondSource = structuredClone(MIGRATION_MATRIX);
-  withoutSecondSource.find(({ item }) => item === "room/create").sourceFiles.splice(1, 1);
-  assert.throws(() => assertMatchesDesign(withoutSecondSource));
-
-  const wrongTarget = structuredClone(MIGRATION_MATRIX);
-  wrongTarget.find(({ item }) => item === "3d-ui").targetFiles[1] = "src/styles/wrong.css";
-  assert.throws(() => assertMatchesDesign(wrongTarget));
-
-  const wrongTest = structuredClone(MIGRATION_MATRIX);
-  wrongTest.find(({ item }) => item === "recover").verificationTests[0] = "tests/host/wrong.test.ts";
-  assert.throws(() => assertMatchesDesign(wrongTest));
-});
-
-test("矩阵只声明未来目标和行为测试路径，不要求这些文件现在存在", () => {
-  for (const entry of MIGRATION_MATRIX) {
-    for (const targetFile of entry.targetFiles) assert.match(targetFile, /^(?:public|src)\//u);
-    for (const verificationTest of entry.verificationTests) {
-      assert.match(verificationTest, /^tests\/(?:components|domain|host)\/.+\.test\.ts$/u);
-    }
-  }
-});
+]);

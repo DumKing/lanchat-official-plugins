@@ -20,6 +20,26 @@ jobs:
       - run: npm ci
       - run: npm test
 
+  monopoly-migration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout LanChat migration history
+        uses: actions/checkout@v4
+        with:
+          repository: DumKing/lanchat
+          path: .ci/lanchat
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Test Monopoly migration guard
+        env:
+          LANCHAT_MAIN_REPO: ${{ github.workspace }}/.ci/lanchat
+        run: npm test --workspace @dumking/lanchat-plugin-monopoly
+
   plugin-package:
     runs-on: ubuntu-latest
     needs: layout
