@@ -3,7 +3,7 @@ import { applyGomokuEvent, createGomokuSession } from "./session.js";
 const api = window.lanchat;
 const elements = Object.fromEntries([
   "board", "roomList", "roomName", "roomMeta", "statusText", "connectionState",
-  "refreshRooms", "createRoom", "readyButton", "startButton", "resignButton", "restartButton", "leaveButton",
+  "refreshRooms", "createRoom", "readyButton", "startButton", "resignButton", "restartButton", "inviteButton", "leaveButton",
 ].map((id) => [id, document.getElementById(id)]));
 let activeRoom = null;
 let session = null;
@@ -17,7 +17,11 @@ if (!api) {
   elements.statusText.textContent = "请在 LanChat 插件中心安装并打开此插件";
   setActionsDisabled(true);
 } else {
-  api.events.onPluginEnter(() => refreshRooms());
+  api.events.onPluginEnter((context) => {
+    const payload = context?.payload;
+    if (payload?.action === "join" && payload.roomId) joinRoom(payload.roomId).catch(reportError);
+    else refreshRooms();
+  });
   api.events.onThemeChanged(applyTheme);
   api.events.onRoomEvent(handleRoomEvent);
   api.events.onPluginOut(() => { activeRoom = null; session = null; render(); });
@@ -31,6 +35,7 @@ function bindActions() {
   elements.startButton.addEventListener("click", () => send("gomoku.start", {}));
   elements.resignButton.addEventListener("click", () => send("gomoku.resign", {}));
   elements.restartButton.addEventListener("click", () => send("gomoku.restart", {}));
+  elements.inviteButton.addEventListener("click", () => activeRoom && api.rooms.invite({ roomId: activeRoom.roomId }).catch(reportError));
   elements.leaveButton.addEventListener("click", leaveRoom);
 }
 
@@ -134,7 +139,7 @@ function statusText(value) {
 }
 
 function setActionsDisabled(disabled) {
-  for (const id of ["readyButton", "startButton", "resignButton", "restartButton", "leaveButton"]) elements[id].disabled = disabled;
+  for (const id of ["readyButton", "startButton", "resignButton", "restartButton", "inviteButton", "leaveButton"]) elements[id].disabled = disabled;
 }
 
 function applyTheme(theme) {
