@@ -126,12 +126,15 @@ rooms.commit({ roomId, commandId, baseRevision, protocolVersion, events, stateHa
 rooms.publishCheckpoint({ roomId, revision, protocolVersion, payload, stateHash })
 rooms.recover({ roomId, afterRevision })
 rooms.setAdmission({ roomId, admission: "lobby" | "closed" })
-rooms.resolveInvite({ roomId, roomVersion, expiresAt })
+rooms.resolveInvite({ inviteId, token })
+events.onAuthoritativeRoomEvent(callback)
 events.onRoomPresenceChanged(callback)
 leaderboard.submit({ gameId, roomId, terminalRevision, terminalCommitId, stateHash, result })
 ```
 
-并定义 `PluginAuthoritativeCommit`、`PluginRoomCheckpoint`、`PluginRoomRecovery`、`PluginRoomPresenceEvent`。业务 payload 保持 `unknown`，不得出现大富翁字段。终局 commit 额外保存通用 `terminalResultHash`；`leaderboard.submit` 的 result 必须稳定序列化后与该哈希一致，防止终局后篡改赢家。
+并定义 `PluginAuthoritativeCommit`、`PluginRoomCheckpoint`、`PluginRoomRecovery`、`PluginRoomPresenceEvent`、宿主签发的 `PluginRoomInvite` 和必填 revision/admission/roomVersion 的 `PluginAuthoritativeRoomSummary`。旧 `onRoomEvent` 与 `rooms.invite(): Promise<void>` 保持兼容，权威事件使用独立通道。业务 payload 保持 `unknown`，不得出现大富翁字段。终局 commit 额外保存通用 `terminalResultHash`；`leaderboard.submit` 的 result 必须稳定序列化后与该哈希一致，防止终局后篡改赢家。
+
+两份 SDK 同时提供 `canonicalizePluginValue` 和 `sha256PluginValue`，固定 `canonical-json-v1` 规则和 golden vectors；主程序生成完整 `.d.ts` 声明图 report，独立 SDK CI 单向对比主程序契约。合并顺序固定为主程序在先、独立 SDK 在后。
 
 - [ ] **Step 2: 运行失败测试**
 
@@ -256,7 +259,7 @@ if (callerPeerId !== room.ownerPeerId) throw new Error("只有房主可以提交
 
 - [ ] **Step 5: 实现准入、邀请解析与 presence**
 
-`join` 在一个宿主事务中检查 `lobby`、人数、协议和 roomVersion。`resolveInvite` 检查 10 分钟有效期并向当前房主查询。presence 事件包含设备 ID、`online/offline/recovered` 和发生时间；不持久化为聊天消息。
+`join` 在一个宿主事务中检查 `lobby`、人数、协议和 roomVersion。宿主在发送邀请卡时签发并保存 `inviteId + token`；`resolveInvite` 只接收这两个 opaque 凭据，再检查 10 分钟有效期、房间版本并向当前房主查询。presence 事件包含设备 ID、`online/offline/recovered` 和发生时间；不持久化为聊天消息。
 
 - [ ] **Step 6: 验证**
 

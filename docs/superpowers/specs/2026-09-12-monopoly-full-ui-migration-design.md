@@ -72,7 +72,7 @@ plugins/com.lanchat.monopoly/
 | 房间目录 | `rooms.list` | 展示可加入的大富翁房间 |
 | 创建房间 | `rooms.create` | 创建大厅并登记房主 |
 | 加入/离开 | `rooms.join`、`rooms.leave` | 维护成员列表 |
-| 对局同步 | `rooms.sendIntent`、`rooms.commit`、`events.onRoomEvent` | 房主裁决并广播权威提交 |
+| 对局同步 | `rooms.sendIntent`、`rooms.commit`、`events.onAuthoritativeRoomEvent` | 房主裁决并广播权威提交；旧 `events.onRoomEvent` 只承载兼容事件 |
 | 邀请 | `rooms.invite` | 打开宿主收件人选择器并发送邀请卡片 |
 | 排行榜 | `leaderboard.submit/list` | 房主按唯一终局提交结果并展示排行榜 |
 | 主题 | `theme.current`、`events.onThemeChanged` | 同步软件主题色 |
@@ -89,7 +89,7 @@ plugins/com.lanchat.monopoly/
 | 发布检查点 | `rooms.publishCheckpoint` | 仅允许房主保存业务不透明的完整状态、协议版本、随机状态和哈希 |
 | 恢复房间 | `rooms.recover` | 返回最新检查点和其后的权威提交 |
 | 设置准入 | `rooms.setAdmission` | 房主在 `lobby/closed` 间切换，宿主原子校验加入 |
-| 查询邀请 | `rooms.resolveInvite` | 按房间 ID、房间版本和有效期向当前房主确认可加入状态 |
+| 查询邀请 | `rooms.resolveInvite` | 使用宿主签发的 `inviteId + token` 向当前房主确认可加入状态 |
 | 成员在线状态 | `events.onRoomPresenceChanged` | 按房间发布成员上线、离线和恢复事件 |
 
 已有 `rooms.send` 保持现有插件兼容语义；大富翁迁移后使用新的权威协议。新增能力属于通用插件框架，参数和存储均不能出现 Monopoly 业务字段。
@@ -113,6 +113,8 @@ plugins/com.lanchat.monopoly/
 - 权威提交携带最终随机结果，客户端 reducer 不自行消费随机数。
 - 规则 reducer 禁止直接调用 `Math.random()` 和 `Date.now()`；时间、随机结果和超时动作全部作为显式输入。
 - `stateHash` 使用稳定序列化后的完整业务状态计算，同一权威版本在所有客户端必须相同。
+- SDK 统一使用 `canonical-json-v1`：普通对象键按 JavaScript UTF-16 code unit 升序、数组保序、仅接受标准 JSON 值，使用 UTF-8 编码后计算 SHA-256 小写十六进制；非法值、非有限数字、稀疏数组、循环和非普通对象必须拒绝。
+- `stateHash` 覆盖完整业务状态，`terminal.resultHash` 覆盖终局 result，检查点 `checksum` 覆盖 `{roomId,revision,protocolVersion,payload,stateHash}`。
 
 ### 4.5 检查点与进行中恢复
 
@@ -127,8 +129,8 @@ plugins/com.lanchat.monopoly/
 
 - 房间创建时准入状态为 `lobby`；房主开始游戏前通过 `rooms.setAdmission` 原子切换为 `closed`。
 - `rooms.join` 由宿主原子检查当前准入状态、房间人数、协议版本和房间版本。
-- 邀请卡携带房间 ID、插件 ID、生成时房间版本和 10 分钟过期时间，不把卡片里的房间副本直接写入本地目录。
-- 点击邀请时先调用 `rooms.resolveInvite` 向当前房主确认；对已开局、已满、已解散、已过期或协议不兼容分别给出中文提示。
+- 邀请卡由宿主签发不可猜测的 `inviteId + token`，并携带房间 ID、插件 ID、生成时房间版本和 10 分钟过期时间；版本与有效期由宿主保存并校验，不信任插件回传的声明，也不把卡片里的房间副本直接写入本地目录。
+- 点击邀请时只把 `inviteId + token` 交给 `rooms.resolveInvite`，由当前房主确认；对已开局、已满、已解散、已过期或协议不兼容分别给出中文提示。
 - 成员资料由房间成员 ID 与 `devices.list` 合并，逐成员在线变化通过 `events.onRoomPresenceChanged` 更新；通用网络变化事件只用于触发重新查询。
 - 普通玩家掉线时保留原席位 60 秒，对局暂停其待处理操作；重连后按设备 ID 认领原席位并恢复。
 - 当前玩家超过 30 秒仍未恢复时，由房主提交确定性超时动作：未投骰则自动投骰；待购买则放弃；机场选点则停留机场并结束落点；尚未提交的道具目标选择取消且不消耗卡牌；待付款时按地块索引升序先逐级拆除建筑、再出售地产，足额后付款，仍不足则破产。
